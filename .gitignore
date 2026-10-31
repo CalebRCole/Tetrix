@@ -1,0 +1,8 @@
+/zig-out/
+/zig-pkg/
+/.zig-cache/
+
+TAGS
+.dir-locals.el
+*#
+*~

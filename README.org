@@ -1,0 +1,2 @@
+* About
+A simple clone of Tetris made in Zig 0.17.0 with ncurses.
