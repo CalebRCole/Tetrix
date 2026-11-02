@@ -17,7 +17,9 @@ pub fn main(init: std.process.Init) !void {
 
     const path = args_iter.next();
     const config = try utils.readConfig(arena, io, path);
-    _ = config;
+
+    var key_map: game.KeyMapper = .init(arena);
+    try key_map.parseConfig(config);
 
     const seed = std.Io.Timestamp.now(io, .real).toMicroseconds();
     var prng = std.Random.DefaultPrng.init(@intCast(seed));
@@ -56,7 +58,10 @@ pub fn main(init: std.process.Init) !void {
         if (delta_tick >= interface.ns_per_frame) {
             delta_tick = 0;
             tick = std.Io.Timestamp.now(io, .cpu_process);
-            switch (input) {
+
+            const action = key_map.map.get(input) orelse return;
+            switch (action) {
+                .quit => break,
                 else => {},
             }
         }

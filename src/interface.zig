@@ -67,3 +67,25 @@ pub fn ncursesSetUp() !*c.WINDOW {
     if (c.keypad(stdscr, true) == c.ERR) return NcursesError.KeypadFailed;
     return stdscr;
 }
+
+pub fn parseKey(key: []const u8) ?c_int {
+    // Single character keys (e.g., 'a', 'W', '1')
+    if (key.len == 1) {
+        return @as(c_int, key[0]);
+    }
+
+    if (std.mem.eql(u8, key, "left")) return c.KEY_LEFT;
+    if (std.mem.eql(u8, key, "right")) return c.KEY_RIGHT;
+    if (std.mem.eql(u8, key, "up")) return c.KEY_UP;
+    if (std.mem.eql(u8, key, "down")) return c.KEY_DOWN;
+    if (std.mem.eql(u8, key, "space")) return ' ';
+    if (std.mem.eql(u8, key, "backspace")) return c.KEY_BACKSPACE;
+    if (std.mem.eql(u8, key, "enter")) return '\n';
+    if (std.mem.eql(u8, key, "print")) return c.KEY_PRINT;
+    if (std.mem.eql(u8, key, "home")) return c.KEY_HOME;
+    if (std.mem.eql(u8, key, "end")) return c.KEY_END;
+    if (std.mem.eql(u8, key, "pgup")) return c.KEY_NPAGE;
+    if (std.mem.eql(u8, key, "pgdn")) return c.KEY_PPAGE;
+
+    return null;
+}
