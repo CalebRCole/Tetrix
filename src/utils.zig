@@ -8,28 +8,41 @@ const std = @import("std");
 /// Caller must free returned file.
 pub fn readConfig(allocator: std.mem.Allocator, io: std.Io, path: ?[]const u8) ![]const u8 {
     const config_path = path orelse blk: {
-        std.log.info("Configuration file path not specified. Using default configuration file \"config.ini\".\n", .{});
+        std.log.info("Configuration not specified. Using default configuration.", .{});
         break :blk "config.ini";
     };
-    const file = std.Io.Dir.readFileAlloc(.cwd(), io, config_path, allocator, .unlimited) catch |err| switch (err) {
+
+    const exe_dir_path = try std.process.executableDirPathAlloc(io, allocator);
+    defer allocator.free(exe_dir_path);
+
+    const exe_dir = try std.Io.Dir.openDirAbsolute(io, exe_dir_path, .{});
+    defer exe_dir.close(io);
+
+    const file = std.Io.Dir.readFileAlloc(
+        if (path != null) .cwd() else exe_dir,
+        io,
+        config_path,
+        allocator,
+        .unlimited,
+    ) catch |err| switch (err) {
         error.FileNotFound => blk: {
-            const exe_dir_path = try std.process.executableDirPathAlloc(io, allocator);
-            defer allocator.free(exe_dir_path);
-
-            const exe_dir = try std.Io.Dir.openDirAbsolute(io, exe_dir_path, .{});
-            defer exe_dir.close(io);
-
             // Path to input config missing, falling back to the default config.
             if (path != null) fallback: {
-                std.log.warn("Specified configuration path is not found. Using default configuration file \"config.ini\".\n", .{});
-                const default_config = std.Io.Dir.readFileAlloc(exe_dir, io, "config.ini", allocator, .unlimited) catch {
+                std.log.warn("Configuration not found. Using default configuration.", .{});
+                const default_config = std.Io.Dir.readFileAlloc(
+                    exe_dir,
+                    io,
+                    "config.ini",
+                    allocator,
+                    .unlimited,
+                ) catch {
                     break :fallback;
                 };
                 break :blk default_config;
             }
             // If either config not specified/invalid and the default config is missing,
             // We generate the config and write it to the smae directory as the binary.
-            std.log.info("Default config.ini not found, generating...\n", .{});
+            std.log.info("Default config.ini not found, generating...", .{});
             const config = generateConfig(allocator, io) catch |e| return e;
             break :blk config;
         },
