@@ -1,2 +1,48 @@
-* About
 A simple clone of Tetris made in Zig 0.17.0 with ncurses.
+
+
+
+** Installation
+Simply run "zig build" and the executable will be in "zig-out/bin/Tetrix" to play.
+
+** Configuration
+When the game is run for the first time, a default configuration file named "config.ini" is generated in the same directory as the game, providing keybindings.
+
+When starting the game, passing in a path for a configuration will use that configuration file instead. If it fails to be read, the default configuration will be used instead.
+
+If the default configuration is deleted and then a custom configuration is not provided upon starting the game next, the default configuration will be recreated.
+
+*** Default Bindings
+The default bindings are:
+left movement = left arrow
+
+right movement = right arrow
+
+hard drop = up arrow
+
+soft drop = down arrow
+
+swap hold piece = x
+
+rotate clockwise = c
+
+rotate counter-clockwise = z
+
+quit = q
+
+*** How-to
+Simply write the action, followed with an '=' sign, then the key, int the form "action=key". Do not use whitespaces.
+
+**** Valid Action Names
+left | right | rotatecw | rotateccw
+
+hard | soft  |   hold   |   quit
+
+**** Valid Key Names
+All alphanumeric characters can be written as literals, e.g. 'quit=q'.
+
+   down    |    up     |   left    |   right   
+
+   home    |    end    |   pgup    |   pgdn    
+
+   space   | backspace |   enter   |   print   
